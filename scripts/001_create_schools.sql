@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS public.schools (
   phone TEXT,
   email TEXT,
   logo_url TEXT,
+  is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );

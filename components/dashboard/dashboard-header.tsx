@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import {
@@ -31,14 +32,16 @@ export function DashboardHeader({ breadcrumbs = [] }: DashboardHeaderProps) {
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((item, index) => (
-                <BreadcrumbItem key={index}>
+                <React.Fragment key={index}>
                   {index > 0 && <BreadcrumbSeparator />}
-                  {item.href ? (
-                    <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
-                  ) : (
-                    <BreadcrumbPage>{item.label}</BreadcrumbPage>
-                  )}
-                </BreadcrumbItem>
+                  <BreadcrumbItem>
+                    {item.href ? (
+                      <BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
+                    ) : (
+                      <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
               ))}
             </BreadcrumbList>
           </Breadcrumb>

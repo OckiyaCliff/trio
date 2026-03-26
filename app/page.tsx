@@ -64,7 +64,7 @@ export default function HomePage() {
               Education Management Made Simple
             </h1>
             <p className="mt-6 text-lg text-muted-foreground text-balance">
-              TRIO is a comprehensive school management platform that connects 
+              TRIO is a comprehensive school management platform that connects
               administrators, teachers, students, and parents in one unified system.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
@@ -74,51 +74,6 @@ export default function HomePage() {
               <Button size="lg" variant="outline" asChild>
                 <Link href="/auth/login">Sign In</Link>
               </Button>
-            </div>
-          </div>
-        </section>
-
-        <section className="container py-16 sm:py-24">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Everything You Need
-            </h2>
-            <p className="mt-4 text-muted-foreground">
-              Powerful features designed to streamline educational management.
-            </p>
-          </div>
-          <div className="mx-auto mt-16 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => (
-              <div
-                key={feature.title}
-                className="relative rounded-lg border bg-card p-6"
-              >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <feature.icon className="h-5 w-5 text-primary" />
-                </div>
-                <h3 className="mt-4 font-semibold">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="border-t bg-muted/30">
-          <div className="container py-16 sm:py-24">
-            <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Ready to Transform Your School?
-              </h2>
-              <p className="mt-4 text-muted-foreground">
-                Join thousands of schools already using TRIO to manage their educational ecosystem.
-              </p>
-              <div className="mt-8">
-                <Button size="lg" asChild>
-                  <Link href="/auth/sign-up">Get Started Today</Link>
-                </Button>
-              </div>
             </div>
           </div>
         </section>

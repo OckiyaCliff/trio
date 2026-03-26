@@ -12,7 +12,10 @@ BEGIN
     new.email,
     COALESCE(new.raw_user_meta_data ->> 'first_name', ''),
     COALESCE(new.raw_user_meta_data ->> 'last_name', ''),
-    COALESCE((new.raw_user_meta_data ->> 'role')::user_role, 'student'),
+    CASE 
+      WHEN (new.raw_user_meta_data ->> 'role') = 'super_admin' THEN 'student'::user_role
+      ELSE COALESCE((new.raw_user_meta_data ->> 'role')::user_role, 'student')
+    END,
     CASE 
       WHEN new.raw_user_meta_data ->> 'school_id' IS NOT NULL 
       THEN (new.raw_user_meta_data ->> 'school_id')::uuid

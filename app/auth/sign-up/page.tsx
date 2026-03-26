@@ -40,8 +40,14 @@ export default function SignUpPage() {
       return
     }
 
-    // School code required for non-super-admin users
-    if (role !== 'super_admin' && !schoolCode) {
+    // Prevent super_admin registration from the public page
+    if (role === 'super_admin') {
+      setError('Invalid role selection')
+      return
+    }
+
+    // School code required for all public registration roles
+    if (!schoolCode) {
       setError('School code is required')
       return
     }
@@ -49,23 +55,20 @@ export default function SignUpPage() {
     setLoading(true)
 
     try {
-      // Verify school code if not super admin
-      let schoolId: string | null = null
-      if (role !== 'super_admin') {
-        const { data: school, error: schoolError } = await supabase
-          .from('schools')
-          .select('id')
-          .eq('code', schoolCode.toUpperCase())
-          .eq('is_active', true)
-          .single()
+      // Verify school code
+      const { data: school, error: schoolError } = await supabase
+        .from('schools')
+        .select('id')
+        .eq('code', schoolCode.toUpperCase())
+        .eq('is_active', true)
+        .single()
 
-        if (schoolError || !school) {
-          setError('Invalid school code')
-          setLoading(false)
-          return
-        }
-        schoolId = school.id
+      if (schoolError || !school) {
+        setError('Invalid school code')
+        setLoading(false)
+        return
       }
+      const schoolId = school.id
 
       const { error: signUpError } = await supabase.auth.signUp({
         email,
@@ -152,11 +155,13 @@ export default function SignUpPage() {
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(Object.entries(ROLE_LABELS) as [UserRole, string][]).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>
-                        {label}
-                      </SelectItem>
-                    ))}
+                    {(Object.entries(ROLE_LABELS) as [UserRole, string][])
+                      .filter(([value]) => value !== 'super_admin')
+                      .map(([value, label]) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
               </Field>
