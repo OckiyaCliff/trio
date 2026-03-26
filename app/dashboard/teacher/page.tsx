@@ -1,62 +1,72 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { DashboardHeader, StatCard, PageHeader } from '@/components/dashboard'
-import { School, Users, ClipboardList, BookOpen } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { DashboardHeader, StatCard, PageHeader } from "@/components/dashboard";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 async function getTeacherStats() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) return null
-  
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('first_name, last_name, school_id')
-    .eq('id', user.id)
-    .single()
-  
-  if (!profile) return null
+    .from("profiles")
+    .select("first_name, last_name, school_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) return null;
 
   // Get classes where this teacher teaches
   const { data: classSubjects } = await supabase
-    .from('class_subjects')
-    .select(`
+    .from("class_subjects")
+    .select(
+      `
       id,
       classes (id, name),
       subjects (name)
-    `)
-    .eq('teacher_id', user.id)
+    `,
+    )
+    .eq("teacher_id", user.id);
 
-  const classIds = classSubjects?.map(cs => cs.classes?.id).filter(Boolean) || []
-  const uniqueClassIds = [...new Set(classIds)]
+  const classIds =
+    classSubjects?.map((cs) => cs.classes?.id).filter(Boolean) || [];
+  const uniqueClassIds = [...new Set(classIds)];
 
   // Get student count in teacher's classes
-  let totalStudents = 0
+  let totalStudents = 0;
   if (uniqueClassIds.length > 0) {
     const { count } = await supabase
-      .from('class_students')
-      .select('id', { count: 'exact', head: true })
-      .in('class_id', uniqueClassIds)
-    totalStudents = count || 0
+      .from("class_students")
+      .select("id", { count: "exact", head: true })
+      .in("class_id", uniqueClassIds);
+    totalStudents = count || 0;
   }
 
   // Get assessment count
-  const classSubjectIds = classSubjects?.map(cs => cs.id) || []
-  let totalAssessments = 0
+  const classSubjectIds = classSubjects?.map((cs) => cs.id) || [];
+  let totalAssessments = 0;
   if (classSubjectIds.length > 0) {
     const { count } = await supabase
-      .from('assessments')
-      .select('id', { count: 'exact', head: true })
-      .in('class_subject_id', classSubjectIds)
-    totalAssessments = count || 0
+      .from("assessments")
+      .select("id", { count: "exact", head: true })
+      .in("class_subject_id", classSubjectIds);
+    totalAssessments = count || 0;
   }
 
   const { data: school } = await supabase
-    .from('schools')
-    .select('name')
-    .eq('id', profile.school_id)
-    .single()
+    .from("schools")
+    .select("name")
+    .eq("id", profile.school_id)
+    .single();
 
   return {
     profile,
@@ -66,24 +76,26 @@ async function getTeacherStats() {
     totalStudents,
     totalAssessments,
     classSubjects: classSubjects || [],
-  }
+  };
 }
 
 export default async function TeacherDashboard() {
-  const stats = await getTeacherStats()
+  const stats = await getTeacherStats();
 
   if (!stats) {
-    redirect('/auth/login')
+    redirect("/auth/login");
   }
 
-  const teacherName = `${stats.profile.first_name || ''} ${stats.profile.last_name || ''}`.trim() || 'Teacher'
+  const teacherName =
+    `${stats.profile.first_name || ""} ${stats.profile.last_name || ""}`.trim() ||
+    "Teacher";
 
   return (
     <>
       <DashboardHeader
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard/teacher' },
-          { label: 'Overview' },
+          { label: "Dashboard", href: "/dashboard/teacher" },
+          { label: "Overview" },
         ]}
       />
       <div className="flex flex-1 flex-col gap-6 p-6">
@@ -97,25 +109,25 @@ export default async function TeacherDashboard() {
             title="My Classes"
             value={stats.totalClasses}
             description="Classes assigned"
-            icon={School}
+            icon="School"
           />
           <StatCard
             title="Subjects"
             value={stats.totalSubjects}
             description="Subjects teaching"
-            icon={BookOpen}
+            icon="BookOpen"
           />
           <StatCard
             title="Students"
             value={stats.totalStudents}
             description="Total students"
-            icon={Users}
+            icon="Users"
           />
           <StatCard
             title="Assessments"
             value={stats.totalAssessments}
             description="Created assessments"
-            icon={ClipboardList}
+            icon="ClipboardList"
           />
         </div>
 
@@ -123,7 +135,9 @@ export default async function TeacherDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>My Classes & Subjects</CardTitle>
-              <CardDescription>Classes and subjects you are teaching</CardDescription>
+              <CardDescription>
+                Classes and subjects you are teaching
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {stats.classSubjects.length === 0 ? (
@@ -139,7 +153,9 @@ export default async function TeacherDashboard() {
                     >
                       <div>
                         <p className="font-medium">{cs.classes?.name}</p>
-                        <p className="text-sm text-muted-foreground">{cs.subjects?.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {cs.subjects?.name}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -162,7 +178,9 @@ export default async function TeacherDashboard() {
                   <ClipboardList className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">Create Assessment</p>
-                    <p className="text-xs text-muted-foreground">Add new quiz, exam, or assignment</p>
+                    <p className="text-xs text-muted-foreground">
+                      Add new quiz, exam, or assignment
+                    </p>
                   </div>
                 </a>
                 <a
@@ -172,7 +190,9 @@ export default async function TeacherDashboard() {
                   <Users className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">View Students</p>
-                    <p className="text-xs text-muted-foreground">See students in your classes</p>
+                    <p className="text-xs text-muted-foreground">
+                      See students in your classes
+                    </p>
                   </div>
                 </a>
               </div>
@@ -181,5 +201,5 @@ export default async function TeacherDashboard() {
         </div>
       </div>
     </>
-  )
+  );
 }

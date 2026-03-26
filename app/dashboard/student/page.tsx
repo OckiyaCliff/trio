@@ -1,72 +1,82 @@
-import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
-import { DashboardHeader, StatCard, PageHeader } from '@/components/dashboard'
-import { School, BookOpen, ClipboardList, Award } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+import { DashboardHeader, StatCard, PageHeader } from "@/components/dashboard";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 async function getStudentStats() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  
-  if (!user) return null
-  
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('first_name, last_name, school_id')
-    .eq('id', user.id)
-    .single()
-  
-  if (!profile) return null
+    .from("profiles")
+    .select("first_name, last_name, school_id")
+    .eq("id", user.id)
+    .single();
+
+  if (!profile) return null;
 
   // Get student's class enrollments
   const { data: enrollments } = await supabase
-    .from('class_students')
-    .select(`
+    .from("class_students")
+    .select(
+      `
       classes (
         id,
         name,
         grades (name),
         academic_years (name, is_current)
       )
-    `)
-    .eq('student_id', user.id)
+    `,
+    )
+    .eq("student_id", user.id);
 
-  const classIds = enrollments?.map(e => e.classes?.id).filter(Boolean) || []
+  const classIds = enrollments?.map((e) => e.classes?.id).filter(Boolean) || [];
 
   // Get subjects in student's classes
-  let totalSubjects = 0
+  let totalSubjects = 0;
   if (classIds.length > 0) {
     const { count } = await supabase
-      .from('class_subjects')
-      .select('id', { count: 'exact', head: true })
-      .in('class_id', classIds)
-    totalSubjects = count || 0
+      .from("class_subjects")
+      .select("id", { count: "exact", head: true })
+      .in("class_id", classIds);
+    totalSubjects = count || 0;
   }
 
   // Get scores
   const { data: scores } = await supabase
-    .from('scores')
-    .select('score, assessments (max_score)')
-    .eq('student_id', user.id)
+    .from("scores")
+    .select("score, assessments (max_score)")
+    .eq("student_id", user.id);
 
-  const totalScores = scores?.length || 0
-  const averageScore = scores && scores.length > 0
-    ? Math.round(
-        scores.reduce((acc, s) => {
-          if (s.score !== null && s.assessments?.max_score) {
-            return acc + (s.score / s.assessments.max_score) * 100
-          }
-          return acc
-        }, 0) / scores.length
-      )
-    : 0
+  const totalScores = scores?.length || 0;
+  const averageScore =
+    scores && scores.length > 0
+      ? Math.round(
+          scores.reduce((acc, s) => {
+            if (s.score !== null && s.assessments?.max_score) {
+              return acc + (s.score / s.assessments.max_score) * 100;
+            }
+            return acc;
+          }, 0) / scores.length,
+        )
+      : 0;
 
   const { data: school } = await supabase
-    .from('schools')
-    .select('name')
-    .eq('id', profile.school_id)
-    .single()
+    .from("schools")
+    .select("name")
+    .eq("id", profile.school_id)
+    .single();
 
   return {
     profile,
@@ -76,24 +86,26 @@ async function getStudentStats() {
     totalSubjects,
     totalScores,
     averageScore,
-  }
+  };
 }
 
 export default async function StudentDashboard() {
-  const stats = await getStudentStats()
+  const stats = await getStudentStats();
 
   if (!stats) {
-    redirect('/auth/login')
+    redirect("/auth/login");
   }
 
-  const studentName = `${stats.profile.first_name || ''} ${stats.profile.last_name || ''}`.trim() || 'Student'
+  const studentName =
+    `${stats.profile.first_name || ""} ${stats.profile.last_name || ""}`.trim() ||
+    "Student";
 
   return (
     <>
       <DashboardHeader
         breadcrumbs={[
-          { label: 'Dashboard', href: '/dashboard/student' },
-          { label: 'Overview' },
+          { label: "Dashboard", href: "/dashboard/student" },
+          { label: "Overview" },
         ]}
       />
       <div className="flex flex-1 flex-col gap-6 p-6">
@@ -107,25 +119,25 @@ export default async function StudentDashboard() {
             title="My Classes"
             value={stats.totalClasses}
             description="Enrolled classes"
-            icon={School}
+            icon="School"
           />
           <StatCard
             title="Subjects"
             value={stats.totalSubjects}
             description="Active subjects"
-            icon={BookOpen}
+            icon="BookOpen"
           />
           <StatCard
             title="Assessments"
             value={stats.totalScores}
             description="Completed assessments"
-            icon={ClipboardList}
+            icon="ClipboardList"
           />
           <StatCard
             title="Average Score"
             value={`${stats.averageScore}%`}
             description="Overall average"
-            icon={Award}
+            icon="Award"
           />
         </div>
 
@@ -148,7 +160,9 @@ export default async function StudentDashboard() {
                       className="flex items-center justify-between rounded-lg border p-3"
                     >
                       <div>
-                        <p className="font-medium">{enrollment.classes?.name}</p>
+                        <p className="font-medium">
+                          {enrollment.classes?.name}
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           {enrollment.classes?.grades?.name}
                         </p>
@@ -166,7 +180,9 @@ export default async function StudentDashboard() {
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Access your academic information</CardDescription>
+              <CardDescription>
+                Access your academic information
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid gap-2">
@@ -177,7 +193,9 @@ export default async function StudentDashboard() {
                   <Award className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">View Grades</p>
-                    <p className="text-xs text-muted-foreground">Check your assessment scores</p>
+                    <p className="text-xs text-muted-foreground">
+                      Check your assessment scores
+                    </p>
                   </div>
                 </a>
                 <a
@@ -187,7 +205,9 @@ export default async function StudentDashboard() {
                   <ClipboardList className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">View Assessments</p>
-                    <p className="text-xs text-muted-foreground">See upcoming and past assessments</p>
+                    <p className="text-xs text-muted-foreground">
+                      See upcoming and past assessments
+                    </p>
                   </div>
                 </a>
               </div>
@@ -196,5 +216,5 @@ export default async function StudentDashboard() {
         </div>
       </div>
     </>
-  )
+  );
 }

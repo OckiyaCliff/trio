@@ -1,12 +1,5 @@
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar, type NavGroup } from '@/components/dashboard'
-import {
-  LayoutDashboard,
-  Building2,
-  Users,
-  Settings,
-  BarChart3,
-} from 'lucide-react'
 
 const navGroups: NavGroup[] = [
   {
@@ -15,12 +8,12 @@ const navGroups: NavGroup[] = [
       {
         title: 'Dashboard',
         href: '/dashboard/super-admin',
-        icon: LayoutDashboard,
+        icon: 'LayoutDashboard',
       },
       {
         title: 'Analytics',
         href: '/dashboard/super-admin/analytics',
-        icon: BarChart3,
+        icon: 'BarChart3',
       },
     ],
   },
@@ -30,12 +23,12 @@ const navGroups: NavGroup[] = [
       {
         title: 'Schools',
         href: '/dashboard/super-admin/schools',
-        icon: Building2,
+        icon: 'Building2',
       },
       {
         title: 'Users',
         href: '/dashboard/super-admin/users',
-        icon: Users,
+        icon: 'Users',
       },
     ],
   },
@@ -45,7 +38,7 @@ const navGroups: NavGroup[] = [
       {
         title: 'Settings',
         href: '/dashboard/super-admin/settings',
-        icon: Settings,
+        icon: 'Settings',
       },
     ],
   },

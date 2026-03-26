@@ -2,12 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar'
 import { AppSidebar, type NavGroup } from '@/components/dashboard'
-import {
-  LayoutDashboard,
-  Users,
-  Award,
-  Settings,
-} from 'lucide-react'
 
 const navGroups: NavGroup[] = [
   {
@@ -16,7 +10,7 @@ const navGroups: NavGroup[] = [
       {
         title: 'Dashboard',
         href: '/dashboard/parent',
-        icon: LayoutDashboard,
+        icon: 'LayoutDashboard',
       },
     ],
   },
@@ -26,12 +20,12 @@ const navGroups: NavGroup[] = [
       {
         title: 'My Children',
         href: '/dashboard/parent/children',
-        icon: Users,
+        icon: 'Users',
       },
       {
         title: 'Grades',
         href: '/dashboard/parent/grades',
-        icon: Award,
+        icon: 'Award',
       },
     ],
   },
@@ -41,7 +35,7 @@ const navGroups: NavGroup[] = [
       {
         title: 'Settings',
         href: '/dashboard/parent/settings',
-        icon: Settings,
+        icon: 'Settings',
       },
     ],
   },

@@ -2,7 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { GraduationCap, type LucideIcon } from 'lucide-react'
+import { GraduationCap } from 'lucide-react'
+import * as LucideIcons from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
@@ -20,7 +21,7 @@ import { type UserRole, ROLE_LABELS } from '@/lib/types'
 export interface NavItem {
   title: string
   href: string
-  icon: LucideIcon
+  icon: keyof typeof LucideIcons
 }
 
 export interface NavGroup {
@@ -61,19 +62,22 @@ export function AppSidebar({ role, navGroups, schoolName }: AppSidebarProps) {
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item) => (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === item.href || pathname.startsWith(`${item.href}/`)}
-                    >
-                      <Link href={item.href}>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {group.items.map((item) => {
+                  const Icon = LucideIcons[item.icon] as LucideIcons.LucideIcon
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={pathname === item.href || pathname.startsWith(`${item.href}/`)}
+                      >
+                        <Link href={item.href}>
+                          <Icon className="h-4 w-4" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

@@ -1,9 +1,9 @@
-'use client'
+"use client";
 
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,48 +12,56 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { LogOut, Settings, User } from 'lucide-react'
-import useSWR from 'swr'
-
-async function getUser() {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  return { user, profile }
-}
+} from "@/components/ui/dropdown-menu";
+import { LogOut, Settings, User } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function UserNav() {
-  const router = useRouter()
-  const supabase = createClient()
-  const { data } = useSWR('user', getUser)
+  const router = useRouter();
+  const supabase = createClient();
+  const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      setData({ user, profile });
+    };
+
+    getUser();
+  }, [supabase]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/auth/login')
-  }
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
 
   const initials = data?.profile
-    ? `${data.profile.first_name?.[0] || ''}${data.profile.last_name?.[0] || ''}`.toUpperCase()
-    : 'U'
+    ? `${data.profile.first_name?.[0] || ""}${data.profile.last_name?.[0] || ""}`.toUpperCase()
+    : "U";
 
   const displayName = data?.profile
-    ? `${data.profile.first_name || ''} ${data.profile.last_name || ''}`.trim()
-    : data?.user?.email || 'User'
+    ? `${data.profile.first_name || ""} ${data.profile.last_name || ""}`.trim()
+    : data?.user?.email || "User";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={data?.profile?.avatar_url || ''} alt={displayName} />
+            <AvatarImage
+              src={data?.profile?.avatar_url || ""}
+              alt={displayName}
+            />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
@@ -85,5 +93,5 @@ export function UserNav() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

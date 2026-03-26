@@ -1,36 +1,38 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
-import { type LucideIcon } from 'lucide-react'
+"use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import * as LucideIcons from "lucide-react";
 
 interface StatCardProps {
-  title: string
-  value: string | number
-  description?: string
-  icon?: LucideIcon
+  title: string;
+  value: string | number;
+  description?: string;
+  icon?: keyof typeof LucideIcons;
   trend?: {
-    value: number
-    isPositive: boolean
-  }
-  className?: string
+    value: number;
+    isPositive: boolean;
+  };
+  className?: string;
 }
 
 export function StatCard({
   title,
   value,
   description,
-  icon: Icon,
+  icon: iconName,
   trend,
   className,
 }: StatCardProps) {
+  const Icon = iconName ? (LucideIcons[iconName] as any) : null;
+
   return (
-    <Card className={cn('', className)}>
+    <Card className={cn("", className)}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
-        {Icon && (
-          <Icon className="h-4 w-4 text-muted-foreground" />
-        )}
+        {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
@@ -39,11 +41,12 @@ export function StatCard({
             {trend && (
               <span
                 className={cn(
-                  'font-medium',
-                  trend.isPositive ? 'text-green-600' : 'text-red-600'
+                  "font-medium",
+                  trend.isPositive ? "text-green-600" : "text-red-600",
                 )}
               >
-                {trend.isPositive ? '+' : ''}{trend.value}%{' '}
+                {trend.isPositive ? "+" : ""}
+                {trend.value}%{" "}
               </span>
             )}
             {description}
@@ -51,5 +54,5 @@ export function StatCard({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }
