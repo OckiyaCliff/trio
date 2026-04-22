@@ -1,15 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export type UserRole = 'super_admin' | 'admin' | 'teacher' | 'student' | 'parent'
-
-const ROLE_DASHBOARD_MAP: Record<UserRole, string> = {
-  super_admin: '/dashboard/super-admin',
-  admin: '/dashboard/admin',
-  teacher: '/dashboard/teacher',
-  student: '/dashboard/student',
-  parent: '/dashboard/parent',
-}
+import { ROLE_DASHBOARD_MAP, type UserRole } from '@/lib/types'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({

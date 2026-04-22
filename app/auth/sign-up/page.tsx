@@ -61,7 +61,7 @@ export default function SignUpPage() {
         .select('id')
         .eq('code', schoolCode.toUpperCase())
         .eq('is_active', true)
-        .single()
+        .maybeSingle()
 
       if (schoolError || !school) {
         setError('Invalid school code')

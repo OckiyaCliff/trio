@@ -35,28 +35,9 @@ export default function LoginPage() {
         return
       }
 
-      // Get user profile to determine redirect
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single()
-
-        if (profile?.role) {
-          const dashboardMap: Record<string, string> = {
-            super_admin: '/dashboard/super-admin',
-            admin: '/dashboard/admin',
-            teacher: '/dashboard/teacher',
-            student: '/dashboard/student',
-            parent: '/dashboard/parent',
-          }
-          router.push(dashboardMap[profile.role] || '/dashboard')
-        } else {
-          router.push('/auth/complete-profile')
-        }
-      }
+      // Redirect to /dashboard and let middleware handle role-specific routing
+      router.push('/dashboard')
+      router.refresh()
     } catch {
       setError('An unexpected error occurred')
     } finally {

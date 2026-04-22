@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { ROLE_DASHBOARD_MAP } from '@/lib/types'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -9,7 +10,7 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
+
     if (!error) {
       // Get user profile to determine redirect
       const { data: { user } } = await supabase.auth.getUser()
@@ -21,14 +22,7 @@ export async function GET(request: Request) {
           .single()
 
         if (profile?.role) {
-          const dashboardMap: Record<string, string> = {
-            super_admin: '/dashboard/super-admin',
-            admin: '/dashboard/admin',
-            teacher: '/dashboard/teacher',
-            student: '/dashboard/student',
-            parent: '/dashboard/parent',
-          }
-          return NextResponse.redirect(`${origin}${dashboardMap[profile.role]}`)
+          return NextResponse.redirect(`${origin}${ROLE_DASHBOARD_MAP[profile.role]}`)
         }
       }
       return NextResponse.redirect(`${origin}${next}`)
