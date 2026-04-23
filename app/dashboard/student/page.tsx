@@ -42,7 +42,10 @@ async function getStudentStats() {
     )
     .eq("student_id", user.id);
 
-  const classIds = enrollments?.map((e) => e.classes?.id).filter(Boolean) || [];
+  const classIds = enrollments?.map((e: any) => {
+    const cls = Array.isArray(e.classes) ? e.classes[0] : e.classes;
+    return cls?.id;
+  }).filter(Boolean) || [];
 
   // Get subjects in student's classes
   let totalSubjects = 0;
@@ -155,24 +158,30 @@ export default async function StudentDashboard() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {stats.enrollments.map((enrollment, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div>
-                        <p className="font-medium">
-                          {enrollment.classes?.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {enrollment.classes?.grades?.name}
-                        </p>
+                  {stats.enrollments.map((enrollment: any, i) => {
+                    const classObj = Array.isArray(enrollment.classes) ? enrollment.classes[0] : enrollment.classes;
+                    const gradeObj = Array.isArray(classObj?.grades) ? classObj.grades[0] : classObj?.grades;
+                    const ayObj = Array.isArray(classObj?.academic_years) ? classObj.academic_years[0] : classObj?.academic_years;
+
+                    return (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between rounded-lg border p-3"
+                      >
+                        <div>
+                          <p className="font-medium">
+                            {classObj?.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {gradeObj?.name}
+                          </p>
+                        </div>
+                        {ayObj?.is_current && (
+                          <Badge>Current</Badge>
+                        )}
                       </div>
-                      {enrollment.classes?.academic_years?.is_current && (
-                        <Badge>Current</Badge>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
