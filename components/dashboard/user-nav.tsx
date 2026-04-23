@@ -22,22 +22,42 @@ export function UserNav() {
   const [data, setData] = useState<any>(null);
 
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) return;
+    let isFetching = false;
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
-
-      setData({ user, profile });
+    const fetchProfile = async (user: any) => {
+      if (isFetching || !user) return;
+      isFetching = true;
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+        setData({ user, profile });
+      } finally {
+        isFetching = false;
+      }
     };
 
-    getUser();
+    // Initial session check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        fetchProfile(session.user);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        fetchProfile(session.user);
+      } else {
+        setData(null);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   const handleSignOut = async () => {
@@ -81,7 +101,10 @@ export function UserNav() {
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => {
+            const role = data?.profile?.role === 'super_admin' ? 'super-admin' : (data?.profile?.role === 'school_admin' ? 'admin' : data?.profile?.role)
+            router.push(`/dashboard/${role}/settings`)
+          }}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
