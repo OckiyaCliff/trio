@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ClipboardList, Users } from "lucide-react";
 
 async function getTeacherStats() {
   const supabase = await createClient();
@@ -38,7 +39,9 @@ async function getTeacherStats() {
     .eq("teacher_id", user.id);
 
   const classIds =
-    classSubjects?.map((cs) => cs.classes?.id).filter(Boolean) || [];
+    classSubjects?.map((cs: any) =>
+      Array.isArray(cs.classes) ? cs.classes[0]?.id : cs.classes?.id
+    ).filter(Boolean) || [];
   const uniqueClassIds = [...new Set(classIds)];
 
   // Get student count in teacher's classes
@@ -146,19 +149,24 @@ export default async function TeacherDashboard() {
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {stats.classSubjects.map((cs) => (
-                    <div
-                      key={cs.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
-                    >
-                      <div>
-                        <p className="font-medium">{cs.classes?.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {cs.subjects?.name}
-                        </p>
+                  {stats.classSubjects.map((cs: any) => {
+                    const classObj = Array.isArray(cs.classes) ? cs.classes[0] : cs.classes;
+                    const subjectObj = Array.isArray(cs.subjects) ? cs.subjects[0] : cs.subjects;
+
+                    return (
+                      <div
+                        key={cs.id}
+                        className="flex items-center justify-between rounded-lg border p-3"
+                      >
+                        <div>
+                          <p className="font-medium">{classObj?.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {subjectObj?.name}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>

@@ -1,18 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { DashboardHeader, PageHeader, DataTable, type Column } from '@/components/dashboard'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
-import type { Profile } from '@/lib/types'
-
-interface StudentWithClass extends Profile {
-  className?: string
-}
+import { DashboardHeader, PageHeader } from '@/components/dashboard'
+import { StudentsTable } from './students-table'
 
 async function getTeacherStudents() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) return null
 
   // Get teacher's classes
@@ -25,7 +19,10 @@ async function getTeacherStudents() {
     return []
   }
 
-  const classIds = classSubjects.map(cs => cs.classes?.id).filter(Boolean) as string[]
+  const classIds = classSubjects.map((cs: any) => {
+    const cls = Array.isArray(cs.classes) ? cs.classes[0] : cs.classes
+    return cls?.id
+  }).filter(Boolean) as string[]
   const uniqueClassIds = [...new Set(classIds)]
 
   if (uniqueClassIds.length === 0) return []
@@ -50,46 +47,13 @@ async function getTeacherStudents() {
     .in('class_id', uniqueClassIds)
 
   // Transform the data
-  const students: StudentWithClass[] = classStudents?.map(cs => ({
+  const students: any[] = classStudents?.map((cs: any) => ({
     ...cs.profiles,
-    className: cs.classes?.name,
-  })).filter(Boolean) as StudentWithClass[] || []
+    className: Array.isArray(cs.classes) ? cs.classes[0]?.name : cs.classes?.name,
+  })).filter(Boolean) || []
 
   return students
 }
-
-const columns: Column<StudentWithClass>[] = [
-  {
-    key: 'name',
-    header: 'Student',
-    cell: (row) => {
-      const initials = `${row.first_name?.[0] || ''}${row.last_name?.[0] || ''}`.toUpperCase()
-      const name = `${row.first_name || ''} ${row.last_name || ''}`.trim() || 'Unknown'
-      return (
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={row.avatar_url || ''} />
-            <AvatarFallback>{initials || 'U'}</AvatarFallback>
-          </Avatar>
-          <div>
-            <p className="font-medium">{name}</p>
-            <p className="text-xs text-muted-foreground">{row.email}</p>
-          </div>
-        </div>
-      )
-    },
-  },
-  {
-    key: 'className',
-    header: 'Class',
-    cell: (row) => <Badge variant="outline">{row.className}</Badge>,
-  },
-  {
-    key: 'phone',
-    header: 'Phone',
-    cell: (row) => row.phone || '-',
-  },
-]
 
 export default async function TeacherStudentsPage() {
   const students = await getTeacherStudents()
@@ -111,12 +75,7 @@ export default async function TeacherStudentsPage() {
           title="My Students"
           description="Students enrolled in your classes."
         />
-        <DataTable
-          columns={columns}
-          data={students}
-          emptyMessage="No students found"
-          emptyDescription="No students are enrolled in your classes yet."
-        />
+        <StudentsTable data={students} />
       </div>
     </>
   )
