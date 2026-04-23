@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Users, School, BookOpen } from "lucide-react";
 
 async function getSchoolStats() {
   const supabase = await createClient();
