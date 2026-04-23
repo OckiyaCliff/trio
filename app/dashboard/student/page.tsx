@@ -67,9 +67,10 @@ async function getStudentStats() {
   const averageScore =
     scores && scores.length > 0
       ? Math.round(
-        scores.reduce((acc, s) => {
-          if (s.score !== null && s.assessments?.max_score) {
-            return acc + (s.score / s.assessments.max_score) * 100;
+        scores.reduce((acc, s: any) => {
+          const assessment = Array.isArray(s.assessments) ? s.assessments[0] : s.assessments;
+          if (s.score !== null && assessment?.max_score) {
+            return acc + (s.score / assessment.max_score) * 100;
           }
           return acc;
         }, 0) / scores.length,

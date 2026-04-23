@@ -22,7 +22,7 @@ export async function GET(request: Request) {
           .single()
 
         if (profile?.role) {
-          return NextResponse.redirect(`${origin}${ROLE_DASHBOARD_MAP[profile.role]}`)
+          return NextResponse.redirect(`${origin}${ROLE_DASHBOARD_MAP[profile.role as keyof typeof ROLE_DASHBOARD_MAP]}`)
         }
       }
       return NextResponse.redirect(`${origin}${next}`)
