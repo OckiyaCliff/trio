@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Award, ClipboardList } from "lucide-react";
 
 async function getStudentStats() {
   const supabase = await createClient();
@@ -63,13 +64,13 @@ async function getStudentStats() {
   const averageScore =
     scores && scores.length > 0
       ? Math.round(
-          scores.reduce((acc, s) => {
-            if (s.score !== null && s.assessments?.max_score) {
-              return acc + (s.score / s.assessments.max_score) * 100;
-            }
-            return acc;
-          }, 0) / scores.length,
-        )
+        scores.reduce((acc, s) => {
+          if (s.score !== null && s.assessments?.max_score) {
+            return acc + (s.score / s.assessments.max_score) * 100;
+          }
+          return acc;
+        }, 0) / scores.length,
+      )
       : 0;
 
   const { data: school } = await supabase
