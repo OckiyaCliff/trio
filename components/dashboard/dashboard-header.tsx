@@ -12,6 +12,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
 import { UserNav } from './user-nav'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface BreadcrumbItem {
   label: string
@@ -47,7 +48,10 @@ export function DashboardHeader({ breadcrumbs = [] }: DashboardHeaderProps) {
           </Breadcrumb>
         )}
       </div>
-      <UserNav />
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <UserNav />
+      </div>
     </header>
   )
 }

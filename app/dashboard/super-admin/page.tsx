@@ -28,7 +28,7 @@ async function getStats() {
   return {
     totalSchools: schoolsResult.count || 0,
     totalUsers: profiles.length,
-    totalAdmins: roleCounts["admin"] || 0,
+    totalAdmins: roleCounts["school_admin"] || 0,
     totalTeachers: roleCounts["teacher"] || 0,
     totalStudents: roleCounts["student"] || 0,
     totalParents: roleCounts["parent"] || 0,
@@ -162,11 +162,10 @@ export default async function SuperAdminDashboard() {
                         </p>
                       </div>
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          school.is_active
+                        className={`text-xs px-2 py-1 rounded-full ${school.is_active
                             ? "bg-green-100 text-green-700"
                             : "bg-gray-100 text-gray-700"
-                        }`}
+                          }`}
                       >
                         {school.is_active ? "Active" : "Inactive"}
                       </span>
