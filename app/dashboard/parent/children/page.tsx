@@ -24,7 +24,7 @@ interface ChildWithDetails {
 async function getParentChildren() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  
+
   if (!user) return null
 
   const { data: parentStudents } = await supabase
@@ -45,8 +45,9 @@ async function getParentChildren() {
 
   // Get detailed info for each child
   const children: ChildWithDetails[] = await Promise.all(
-    parentStudents.map(async (ps) => {
-      const childId = ps.profiles?.id
+    parentStudents.map(async (ps: any) => {
+      const child = Array.isArray(ps.profiles) ? ps.profiles[0] : ps.profiles
+      const childId = child?.id
       if (!childId) return null
 
       // Get classes
@@ -64,19 +65,20 @@ async function getParentChildren() {
       const totalScores = scores?.length || 0
       const averageScore = scores && scores.length > 0
         ? Math.round(
-            scores.reduce((acc, s) => {
-              if (s.score !== null && s.assessments?.max_score) {
-                return acc + (s.score / s.assessments.max_score) * 100
-              }
-              return acc
-            }, 0) / scores.length
-          )
+          scores.reduce((acc, s: any) => {
+            const assessment = Array.isArray(s.assessments) ? s.assessments[0] : s.assessments
+            if (s.score !== null && assessment?.max_score) {
+              return acc + (s.score / assessment.max_score) * 100
+            }
+            return acc
+          }, 0) / scores.length
+        )
         : 0
 
       return {
-        ...ps.profiles,
+        ...child,
         relationship: ps.relationship,
-        classes: classStudents?.map(cs => cs.classes).filter(Boolean) || [],
+        classes: classStudents?.map((cs: any) => cs.classes).filter(Boolean) || [],
         averageScore,
         totalScores,
       }
